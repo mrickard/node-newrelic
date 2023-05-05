@@ -15,6 +15,52 @@
 
 * Reduced cognitive complexity in lib/serverless/aws-lambda.js
 
+## 1.0.0 (2023-05-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* Route/URL parameters are now stored on request.parameters.route.* attributes
+
+### Features
+
+* add ability to customize Error Groups ([42469d3](https://github.com/mrickard/node-newrelic/commit/42469d3e93bc1b2d25b4d82b0dd3e96e431ec269))
+* prisma instrumentation support ([73753d1](https://github.com/mrickard/node-newrelic/commit/73753d1ea89286e92346bd1fd960d9a366fda6e2))
+
+
+### Bug Fixes
+
+* **nest:** add unit test ([50b42cb](https://github.com/mrickard/node-newrelic/commit/50b42cba9bc0f63760bbb7d292b5bcadae595fa3))
+* **nestjs:** add a semver check ([99d524d](https://github.com/mrickard/node-newrelic/commit/99d524d8d1ec18ad4683e47f314f12f1796d65d7))
+* **nestjs:** add logging statement for minimum instrumentable version ([5579a5e](https://github.com/mrickard/node-newrelic/commit/5579a5e525b7b8201edcbca43cf5974a99f3eb56))
+* **nest:** properly check for a transaction in case the segment is missing ([79f294b](https://github.com/mrickard/node-newrelic/commit/79f294b76923754a83278c28964378eabd901779))
+* **nest:** properly set the shim type ([0d04fcf](https://github.com/mrickard/node-newrelic/commit/0d04fcf9a7cfd115ec628e4bbf2c159dc7241e54))
+* **nest:** remove stray console.log statement ([9bae4e8](https://github.com/mrickard/node-newrelic/commit/9bae4e8c1e28c540c165133b978f0940c25b6c3f))
+* public api documentation workflow failures ([df4cd58](https://github.com/mrickard/node-newrelic/commit/df4cd58d04471f1b0c9bda26253bf5a3ee2c884e))
+* remove Exception import to resolve Node warning ([9751437](https://github.com/mrickard/node-newrelic/commit/97514372f36c9fb3d30d4e9813632e041836b615))
+* Replace request.abort with response.close in HTTP instrumentation ([02421ef](https://github.com/mrickard/node-newrelic/commit/02421ef23326e5a6c4b8d6753fa2a25b17209ea4))
+* Replace request.abort/response.finish with response.close in HTTP instrumentation ([f78c4d5](https://github.com/mrickard/node-newrelic/commit/f78c4d591e2eb4bdb62b6f31f662cbc09d76b3af))
+* Route/URL parameters are now stored on request.parameters.route.* attributes ([b271483](https://github.com/mrickard/node-newrelic/commit/b2714830d770a1ece489eaf78f4b502396a149d0))
+* update normalizeHeaders to gracefully handle no headers ([07a28b0](https://github.com/mrickard/node-newrelic/commit/07a28b02ef8d05ffd7a7afd8af0c241f1930b7ee))
+* upgrade @grpc/grpc-js from 1.6.9 to 1.7.3 ([21cf98a](https://github.com/mrickard/node-newrelic/commit/21cf98ad1116eb23a356bf44b39337d2303beb36))
+* upgrade @grpc/grpc-js from 1.6.9 to 1.7.3 ([baf759c](https://github.com/mrickard/node-newrelic/commit/baf759c91749040abc3652b682d4e675509a1038))
+* upgrade @grpc/grpc-js from 1.7.3 to 1.8.4 ([cfd96c2](https://github.com/mrickard/node-newrelic/commit/cfd96c2af65472a834fc07b1d7a17c7790ed5acb))
+* upgrade @grpc/grpc-js from 1.8.4 to 1.8.5 ([5b9e259](https://github.com/mrickard/node-newrelic/commit/5b9e2597a8c086ea35693a4a35bd09e3d23f6081))
+* upgrade @grpc/grpc-js from 1.8.5 to 1.8.7 ([17e44b5](https://github.com/mrickard/node-newrelic/commit/17e44b5df6aa3800a3eaef303d603639b0cb50a2))
+* upgrade @grpc/grpc-js from 1.8.7 to 1.8.8 ([c2b4547](https://github.com/mrickard/node-newrelic/commit/c2b4547f6d0484f66f7c5077ca78b5525cc94408))
+* upgrade @grpc/grpc-js from 1.8.8 to 1.8.9 ([26ec5e0](https://github.com/mrickard/node-newrelic/commit/26ec5e01a16e7beef212d68e9cdff334a77656cb))
+* upgrade @grpc/proto-loader from 0.6.13 to 0.7.3 ([2d0ae3b](https://github.com/mrickard/node-newrelic/commit/2d0ae3bacb881f85eaf71634b9d499b5acfb6b59))
+* upgrade @grpc/proto-loader from 0.6.13 to 0.7.3 ([faae6d1](https://github.com/mrickard/node-newrelic/commit/faae6d17f05005c25a7002012aec0e802b4a7d19))
+* upgrade @grpc/proto-loader from 0.7.3 to 0.7.4 ([a1fca3a](https://github.com/mrickard/node-newrelic/commit/a1fca3ab1b653179531c11d47f657a9b1c5aa3d3))
+* upgrade @grpc/proto-loader from 0.7.4 to 0.7.5 ([6ad59ec](https://github.com/mrickard/node-newrelic/commit/6ad59ec80d3a17178953dfa8f63cbc15414c0ffb))
+* upgrade @newrelic/aws-sdk from 5.0.0 to 5.0.2 ([16ae45a](https://github.com/mrickard/node-newrelic/commit/16ae45adcb56da2eb447d8f093eff4bdcc7522cf))
+* upgrade @newrelic/koa from 7.0.0 to 7.1.1 ([1d4543e](https://github.com/mrickard/node-newrelic/commit/1d4543e60a889557984b1314146c31a8632ef056))
+
+
+### Security fixes
+
+* npm audit fixed dev dep vulnerability ([e326479](https://github.com/mrickard/node-newrelic/commit/e326479fc6fbc00a10af6960f51d4c4702499e7b))
+
 ### v10.0.0 (2023-04-19)
 
 * **BREAKING** - Updated the default of `config.transaction_tracer.record_sql` from `off` to `obfuscated`. This means that sql statements will be captured but obfuscated.

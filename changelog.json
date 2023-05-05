@@ -1,4 +1,190 @@
 {
-    "repository": "newrelic/node-newrelic",
-    "entries": []
+  "repository": "newrelic/node-newrelic",
+  "entries": [
+    {
+      "changes": [
+        {
+          "type": "fix",
+          "sha": "5579a5e525b7b8201edcbca43cf5974a99f3eb56",
+          "message": "add logging statement for minimum instrumentable version",
+          "issues": [],
+          "scope": "nestjs"
+        },
+        {
+          "type": "fix",
+          "sha": "99d524d8d1ec18ad4683e47f314f12f1796d65d7",
+          "message": "add a semver check",
+          "issues": [],
+          "scope": "nestjs"
+        },
+        {
+          "type": "fix",
+          "sha": "50b42cba9bc0f63760bbb7d292b5bcadae595fa3",
+          "message": "add unit test",
+          "issues": [],
+          "scope": "nest"
+        },
+        {
+          "type": "fix",
+          "sha": "79f294b76923754a83278c28964378eabd901779",
+          "message": "properly check for a transaction in case the segment is missing",
+          "issues": [],
+          "scope": "nest"
+        },
+        {
+          "type": "fix",
+          "sha": "0d04fcf9a7cfd115ec628e4bbf2c159dc7241e54",
+          "message": "properly set the shim type",
+          "issues": [],
+          "scope": "nest"
+        },
+        {
+          "type": "fix",
+          "sha": "9bae4e8c1e28c540c165133b978f0940c25b6c3f",
+          "message": "remove stray console.log statement",
+          "issues": [],
+          "scope": "nest"
+        },
+        {
+          "type": "fix",
+          "sha": "b2714830d770a1ece489eaf78f4b502396a149d0",
+          "message": "Route/URL parameters are now stored on request.parameters.route.* attributes",
+          "issues": [],
+          "breakingChangeNote": "Route/URL parameters are now stored on request.parameters.route.* attributes"
+        },
+        {
+          "type": "fix",
+          "sha": "97514372f36c9fb3d30d4e9813632e041836b615",
+          "message": "remove Exception import to resolve Node warning",
+          "issues": []
+        },
+        {
+          "type": "feat",
+          "sha": "42469d3e93bc1b2d25b4d82b0dd3e96e431ec269",
+          "message": "add ability to customize Error Groups",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "26ec5e01a16e7beef212d68e9cdff334a77656cb",
+          "message": "upgrade @grpc/grpc-js from 1.8.8 to 1.8.9",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "6ad59ec80d3a17178953dfa8f63cbc15414c0ffb",
+          "message": "upgrade @grpc/proto-loader from 0.7.4 to 0.7.5",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "c2b4547f6d0484f66f7c5077ca78b5525cc94408",
+          "message": "upgrade @grpc/grpc-js from 1.8.7 to 1.8.8",
+          "issues": []
+        },
+        {
+          "type": "feat",
+          "sha": "73753d1ea89286e92346bd1fd960d9a366fda6e2",
+          "message": "prisma instrumentation support",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "f78c4d591e2eb4bdb62b6f31f662cbc09d76b3af",
+          "message": "Replace request.abort/response.finish with response.close in HTTP instrumentation",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "17e44b5df6aa3800a3eaef303d603639b0cb50a2",
+          "message": "upgrade @grpc/grpc-js from 1.8.5 to 1.8.7",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "02421ef23326e5a6c4b8d6753fa2a25b17209ea4",
+          "message": "Replace request.abort with response.close in HTTP instrumentation",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "5b9e2597a8c086ea35693a4a35bd09e3d23f6081",
+          "message": "upgrade @grpc/grpc-js from 1.8.4 to 1.8.5",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "07a28b02ef8d05ffd7a7afd8af0c241f1930b7ee",
+          "message": "update normalizeHeaders to gracefully handle no headers",
+          "issues": []
+        },
+        {
+          "type": "security",
+          "sha": "e326479fc6fbc00a10af6960f51d4c4702499e7b",
+          "message": "npm audit fixed dev dep vulnerability",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "df4cd58d04471f1b0c9bda26253bf5a3ee2c884e",
+          "message": "public api documentation workflow failures",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "a1fca3ab1b653179531c11d47f657a9b1c5aa3d3",
+          "message": "upgrade @grpc/proto-loader from 0.7.3 to 0.7.4",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "1d4543e60a889557984b1314146c31a8632ef056",
+          "message": "upgrade @newrelic/koa from 7.0.0 to 7.1.1",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "16ae45adcb56da2eb447d8f093eff4bdcc7522cf",
+          "message": "upgrade @newrelic/aws-sdk from 5.0.0 to 5.0.2",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "cfd96c2af65472a834fc07b1d7a17c7790ed5acb",
+          "message": "upgrade @grpc/grpc-js from 1.7.3 to 1.8.4",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "2d0ae3bacb881f85eaf71634b9d499b5acfb6b59",
+          "message": "upgrade @grpc/proto-loader from 0.6.13 to 0.7.3",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "faae6d17f05005c25a7002012aec0e802b4a7d19",
+          "message": "upgrade @grpc/proto-loader from 0.6.13 to 0.7.3",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "21cf98ad1116eb23a356bf44b39337d2303beb36",
+          "message": "upgrade @grpc/grpc-js from 1.6.9 to 1.7.3",
+          "issues": []
+        },
+        {
+          "type": "fix",
+          "sha": "baf759c91749040abc3652b682d4e675509a1038",
+          "message": "upgrade @grpc/grpc-js from 1.6.9 to 1.7.3",
+          "issues": []
+        }
+      ],
+      "version": "1.0.0",
+      "language": "JAVASCRIPT",
+      "artifactName": "newrelic",
+      "id": "207dd87e-3987-4a80-b3be-7cc8d12701e2",
+      "createTime": "2023-05-05T14:10:14.472Z"
+    }
+  ],
+  "updateTime": "2023-05-05T14:10:14.472Z"
 }
