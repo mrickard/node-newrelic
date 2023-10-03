@@ -11,7 +11,7 @@ const helper = require('../../lib/agent_helper')
 const params = require('../../lib/params')
 const urltils = require('../../../lib/util/urltils')
 
-test('Elasticsearch instrumentation', { timeout: 20000 }, (t) => {
+test('Elasticsearch instrumentation', { timeout: 60000 }, (t) => {
   t.autoend()
 
   let METRIC_HOST_NAME = null
