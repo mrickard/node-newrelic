@@ -838,8 +838,8 @@ tap.test('Errors', (t) => {
         t.end()
       })
 
-      t.test('should default to a type of Error', (t) => {
-        t.equal(errorJSON[3], 'Error')
+      t.test('should default to status code for error type', (t) => {
+        t.equal(errorJSON[3], '503')
         t.end()
       })
 
@@ -904,8 +904,8 @@ tap.test('Errors', (t) => {
         t.end()
       })
 
-      t.test('should default to  a type of Error', (t) => {
-        t.equal(errorJSON[3], 'Error')
+      t.test('should show status code in error type', (t) => {
+        t.equal(errorJSON[3], '501')
         t.end()
       })
 
@@ -1381,9 +1381,9 @@ tap.test('Errors', (t) => {
         t.equal(message, 'HttpError 503')
         t.end()
       })
-      t.test('should associate errors with an error type', (t) => {
+      t.test('should associate web transaction errors with a status code error type', (t) => {
         const messageClass = error[3]
-        t.equal(messageClass, 'Error')
+        t.equal(messageClass, '503')
         t.end()
       })
     })
