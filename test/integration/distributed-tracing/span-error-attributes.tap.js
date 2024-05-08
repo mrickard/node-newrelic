@@ -309,5 +309,50 @@ tap.test('span error attributes', (t) => {
     })
   })
 
+  t.test('should propagate HTTP errors to span error attributes', (t) => {
+    const agent = helper.instrumentMockedAgent({
+      distributed_tracing: {
+        enabled: true
+      }
+    })
+
+    t.teardown(() => {
+      helper.unloadAgent(agent)
+    })
+
+    const api = new API(agent)
+    const httpErrorCode = 501
+    let errorSegmentId
+
+    agent.on('transactionFinished', () => {
+      const errorEvents = agent.errors.eventAggregator.getEvents()
+      const spanEvents = agent.spanEventAggregator.getEvents()
+      const spanEvent = spanEvents.filter((s) => s.intrinsics.guid === errorSegmentId)[0]
+
+      t.equal(errorEvents.length, 1)
+      t.equal(spanEvent.attributes['error.class'], httpErrorCode)
+
+      t.end()
+    })
+
+    helper.runInTransaction(agent, (tx) => {
+      // forces a web transaction
+      tx.type = 'web'
+      tx.url = '/some/test/url'
+      tx.statusCode = httpErrorCode
+
+      // forces creation of spans
+      tx.priority = 57
+      tx.sampled = true
+
+      api.startSegment('httpErrorSegment', true, () => {
+        const segment = api.shim.getSegment()
+        errorSegmentId = segment.id
+        agent.errors.add(tx, new Error())
+      })
+
+      tx.end()
+    })
+  })
   t.end()
 })
