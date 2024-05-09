@@ -189,7 +189,7 @@ test('built-in http instrumentation should handle internal & external requests',
 test('built-in http instrumentation should not swallow errors', function (t) {
   helper.temporarilyOverrideTapUncaughtBehavior(tap, t)
 
-  t.plan(8)
+  t.plan(10)
 
   const agent = helper.instrumentMockedAgent()
 
@@ -235,15 +235,15 @@ test('built-in http instrumentation should not swallow errors', function (t) {
       t.ok(errors, 'should find error')
       t.equal(errors.length, 2, 'should be 2 errors')
 
-      const first = errors[0]
-      const second = errors[1]
+      const [first, second] = errors
       t.ok(first, 'should have the first error')
 
       t.equal(first[2], "Cannot access 'x' before initialization", 'should get the expected error')
+      t.equal(first[3], 'ReferenceError', 'type should be class')
 
-      if (t.ok(second, 'should have the second error')) {
-        t.equal(second[2], 'HttpError 501', 'should get the expected error')
-      }
+      t.ok(second, 'should have the second error')
+      t.equal(second[2], 'HttpError 501', 'should get the expected error')
+      t.equal(second[3], '501', 'should make status code the error type')
 
       t.end()
     })

@@ -330,7 +330,7 @@ tap.test('span error attributes', (t) => {
       const spanEvent = spanEvents.filter((s) => s.intrinsics.guid === errorSegmentId)[0]
 
       t.equal(errorEvents.length, 1)
-      t.equal(spanEvent.attributes['error.class'], httpErrorCode)
+      t.equal(spanEvent.attributes['error.class'], `${httpErrorCode}`)
 
       t.end()
     })
@@ -349,9 +349,8 @@ tap.test('span error attributes', (t) => {
         const segment = api.shim.getSegment()
         errorSegmentId = segment.id
         agent.errors.add(tx, new Error())
+        tx.end()
       })
-
-      tx.end()
     })
   })
   t.end()
