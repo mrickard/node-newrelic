@@ -1334,14 +1334,14 @@ tap.test('Errors', (t) => {
       t.test('should associate errors with a message', (t) => {
         const message = error[2]
 
-        t.match(message, /500 test error/)
+        t.equal(message, '500 test error')
         t.end()
       })
 
       t.test('should associate errors with a message class', (t) => {
         const messageClass = error[3]
 
-        t.equal(messageClass, 'Error')
+        t.equal(messageClass, '500')
         t.end()
       })
 

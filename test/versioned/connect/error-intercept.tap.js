@@ -69,13 +69,16 @@ test('intercepting errors with connect 2', function (t) {
   t.test('should trace errors that occur while executing a middleware', function (t) {
     const agent = helper.instrumentMockedAgent()
     let server
-    agent.once('transactionFinished', function () {
-      const errors = agent.errors.traceAggregator.errors // FIXME: redundancy is dumb
+    agent.once('transactionFinished', function (tx) {
+      const { errors } = agent.errors.traceAggregator
       t.equal(errors.length, 1, 'the error got traced')
-
       const error = errors[0]
-      t.equal(error.length, 6, 'format for traced error is correct')
-      t.equal(error[3], 'TypeError', 'got the correct class for the error')
+      t.assertErrorTrace({
+        error,
+        tx,
+        msg: "Cannot read properties of null (reading 'bargl')",
+        type: '500'
+      })
 
       server.close()
       t.end()

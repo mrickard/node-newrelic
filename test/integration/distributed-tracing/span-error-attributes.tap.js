@@ -349,9 +349,11 @@ tap.test('span error attributes', (t) => {
         const segment = api.shim.getSegment()
         errorSegmentId = segment.id
         agent.errors.add(tx, new Error())
-        tx.end()
       })
+
+      tx.end()
     })
   })
+
   t.end()
 })

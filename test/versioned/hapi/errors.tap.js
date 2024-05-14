@@ -55,9 +55,9 @@ tap.test('Hapi error handling', function (t) {
 
     runTest(t, function (errors, statusCode) {
       t.equal(errors.length, 1, 'should have one error')
-
-      t.equal(errors[0][2], 'rejected promise error', 'should have expected error message')
-
+      const [error] = errors
+      const tx = agent.getTransaction()
+      t.assertErrorTrace({ error, tx, msg: 'rejected promise error', type: '500' })
       t.equal(statusCode, 500, 'should have expected error code')
       t.end()
     })
@@ -74,7 +74,9 @@ tap.test('Hapi error handling', function (t) {
 
     runTest(t, function (errors, statusCode) {
       t.equal(errors.length, 1, 'should have one error')
-      t.equal(errors[0][2], 'thrown error', 'should have expected error message')
+      const [error] = errors
+      const tx = agent.getTransaction()
+      t.assertErrorTrace({ error, tx, msg: 'thrown error', type: '500' })
       t.equal(statusCode, 500, 'should have expected error code')
       t.end()
     })
@@ -95,7 +97,9 @@ tap.test('Hapi error handling', function (t) {
 
     runTest(t, function (errors, statusCode) {
       t.equal(errors.length, 1, 'should have one error')
-      t.equal(errors[0][2], 'middleware error', 'should have expected error message')
+      const [error] = errors
+      const tx = agent.getTransaction()
+      t.assertErrorTrace({ error, tx, msg: 'middleware error', type: '500' })
       t.equal(statusCode, 500, 'should have expected error code')
       t.end()
     })
@@ -118,7 +122,9 @@ tap.test('Hapi error handling', function (t) {
 
     runTest(t, (errors, statusCode) => {
       t.equal(errors.length, 1, 'has 1 reported error')
-      t.equal(errors[0][2], 'route handler error', 'has correct error message')
+      const [error] = errors
+      const tx = agent.getTransaction()
+      t.assertErrorTrace({ error, tx, msg: 'route handler error', type: '400' })
       t.equal(statusCode, 400, 'has expected 400 status code')
       t.end()
     })
@@ -141,7 +147,9 @@ tap.test('Hapi error handling', function (t) {
 
     runTest(t, (errors, statusCode) => {
       t.equal(errors.length, 1, 'has 1 reported error')
-      t.equal(errors[0][2], 'route handler error', 'has correct error message')
+      const [error] = errors
+      const tx = agent.getTransaction()
+      t.assertErrorTrace({ error, tx, msg: 'route handler error', type: '400' })
       t.equal(statusCode, 400, 'has expected 400 status code')
       t.end()
     })
@@ -163,7 +171,9 @@ tap.test('Hapi error handling', function (t) {
 
     runTest(t, (errors, statusCode) => {
       t.equal(errors.length, 1, 'has 1 reported error')
-      t.equal(errors[0][2], 'route handler error', 'has correct error message')
+      const [error] = errors
+      const tx = agent.getTransaction()
+      t.assertErrorTrace({ error, tx, msg: 'route handler error', type: '500' })
       t.equal(statusCode, 500, 'has expected 500 status code')
       t.end()
     })

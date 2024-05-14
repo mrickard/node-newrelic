@@ -339,8 +339,8 @@ tap.test('Koa instrumentation', (t) => {
     agent.on('transactionFinished', (tx) => {
       const errors = agent.errors.traceAggregator.errors
       t.equal(errors.length, 1, 'recorded expected number of errors')
-      const error = errors[0][2]
-      t.equal(error, 'middleware error', 'recorded expected error')
+      const [error] = errors
+      t.assertErrorTrace({ error, tx, msg: 'middleware error', type: '500' })
       checkSegments(t, tx)
     })
     run(t, 'error is not actually handled')
@@ -362,8 +362,8 @@ tap.test('Koa instrumentation', (t) => {
     agent.on('transactionFinished', (tx) => {
       const errors = agent.errors.traceAggregator.errors
       t.equal(errors.length, 1, 'recorded expected number of errors')
-      const error = errors[0][2]
-      t.equal(error, 'middleware error', 'recorded expected error')
+      const [error] = errors
+      t.assertErrorTrace({ error, tx, msg: 'middleware error', type: '500' })
       checkSegments(t, tx)
     })
     run(t, 'Internal Server Error')

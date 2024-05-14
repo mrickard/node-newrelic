@@ -236,15 +236,12 @@ test('built-in http instrumentation should not swallow errors', function (t) {
       t.equal(errors.length, 2, 'should be 2 errors')
 
       const [first, second] = errors
-      t.ok(first, 'should have the first error')
-
-      t.equal(first[2], "Cannot access 'x' before initialization", 'should get the expected error')
-      t.equal(first[3], 'ReferenceError', 'type should be class')
-
-      t.ok(second, 'should have the second error')
-      t.equal(second[2], 'HttpError 501', 'should get the expected error')
-      t.equal(second[3], '501', 'should make status code the error type')
-
+      t.assertErrorTrace({
+        error: first,
+        msg: "Cannot access 'x' before initialization",
+        type: 'ReferenceError'
+      })
+      t.assertErrorTrace({ error: second, msg: 'HttpError 501', type: '501' })
       t.end()
     })
   }

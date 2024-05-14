@@ -386,8 +386,9 @@ function runTests(conf) {
         helper.makeGetRequest(TEST_URL + port + TEST_PATH, function () {
           const errors = agent.errors.traceAggregator.errors
           t.equal(errors.length, 1, 'there should be one error')
-          t.equal(errors[0][2], 'some error', 'got the expected error')
-          t.ok(errors[0][4].stack_trace, 'has stack trace')
+          const [error] = errors
+          t.assertErrorTrace({ error, msg: 'some error', type: '500' })
+          t.ok(error[4].stack_trace, 'has stack trace')
 
           const metric = agent.metrics.getMetric('Apdex')
           t.ok(metric.frustrating === 1, 'apdex should be frustrating')
@@ -487,7 +488,43 @@ function runTests(conf) {
         helper.makeGetRequest(TEST_URL + port + TEST_PATH, function () {
           const errors = agent.errors.traceAggregator.errors
           t.equal(errors.length, 1, 'there should be one error')
-          t.equal(errors[0][2], 'some error', 'got the expected error')
+          const [error] = errors
+          t.assertErrorTrace({ error, msg: 'some error', type: '500' })
+
+          const metric = agent.metrics.getMetric('Apdex')
+          t.ok(metric.frustrating === 1, 'apdex should be frustrating')
+
+          t.end()
+        })
+      })
+    })
+
+    t.test('does not occur with custom defined error handlers', function (t) {
+      const agent = helper.instrumentMockedAgent(conf)
+
+      const app = require('express')()
+      const server = require('http').createServer(app)
+
+      t.teardown(() => {
+        server.close()
+        helper.unloadAgent(agent)
+      })
+      const error = new Error('some error')
+
+      app.get(TEST_PATH, function () {
+        throw error
+      })
+
+      app.use(function (err, req, res, next) {
+        t.equal(err, error, 'should see the same error in the error handler')
+        next()
+      })
+
+      server.listen(0, TEST_HOST, function () {
+        const port = server.address().port
+        helper.makeGetRequest(TEST_URL + port + TEST_PATH, function () {
+          const errors = agent.errors.traceAggregator.errors
+          t.equal(errors.length, 0, 'there should be no errors')
 
           const metric = agent.metrics.getMetric('Apdex')
           t.ok(metric.frustrating === 1, 'apdex should be frustrating')

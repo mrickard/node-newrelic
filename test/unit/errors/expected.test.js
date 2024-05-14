@@ -325,12 +325,12 @@ tap.test('Expected Errors, when expected configuration is present', (t) => {
 
       let error = new Error('apdex is frustrating')
       let exception = new Exception({ error })
+
       tx.addException(exception)
 
       error = new ReferenceError('apdex is frustrating')
       exception = new Exception({ error })
       tx.addException(exception)
-
       t.equal(tx.hasOnlyExpectedErrors(), true)
 
       tx._setApdex(NAMES.APDEX, 1, 1)

@@ -9,6 +9,7 @@ tap.Test.prototype.addAssert('clmAttrs', 1, assertCLMAttrs)
 tap.Test.prototype.addAssert('isNonWritable', 1, isNonWritable)
 tap.Test.prototype.addAssert('compareSegments', 2, compareSegments)
 tap.Test.prototype.addAssert('exactClmAttrs', 2, assertExactClmAttrs)
+tap.Test.prototype.addAssert('assertErrorTrace', 1, assertErrorTrace)
 
 function assertExactClmAttrs(segmentStub, expectedAttrs) {
   const attrs = segmentStub.addAttribute.args
@@ -78,4 +79,32 @@ function compareSegments(parent, segments) {
   segments.forEach((segment, index) => {
     this.equal(parent.children[index].id, segment.id, 'should have same ids')
   })
+}
+
+/**
+ * Asserts portions of traced error
+ * [timestamp, transactionName, message, type, errorTraceAttributes, transactionId]
+ *
+ * @param {Object} params params to fn
+ * @param {Object} params.error error trace to check
+ * @param {string} params.type expected class of error
+ * @param {string} params.msg expected err message
+ * @param {Object} params.tx active transaction
+ * @param {Object} params.attrs error trace attributes to compare in error trace
+ */
+function assertErrorTrace({ error, type, msg, tx, attrs }) {
+  const [, txName, errMessage, errType, errAttrs, txId] = error
+  this.equal(error.length, 6, 'should have 6 args in error trace')
+
+  this.equal(errType, type, 'should match the type, status code if http call')
+  this.equal(errMessage, msg, 'should match err message')
+
+  if (tx) {
+    this.equal(txName, tx.name, 'should match transaction name')
+    this.equal(tx.id, txId, 'should match transaction id')
+  }
+
+  if (attrs) {
+    this.match(attrs, errAttrs, 'should match error trace attrs')
+  }
 }
