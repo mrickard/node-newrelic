@@ -24,7 +24,7 @@ jobs:
     - name: Display dotnet version
       run: dotnet --version
     - name: Display NuGet version
-      run: nuget --version
+      run: nuget ?
 
   create_extension_bundle:
     runs-on: windows-latest
