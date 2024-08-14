@@ -5,11 +5,8 @@ on:
 
 env:
   # Enable versioned runner quiet mode to make CI output easier to read:
-  OUTPUT_MODE: quiet
+  # OUTPUT_MODE: quiet
   SPEC_FILE_TEMPLATE: 'NewRelic.Azure.WebSites.Extension.NodeAgent.nuspec'
-  PACKAGE_FILENAME: ''
-  SPEC_CONTENT: ''
-  AGENT_VERSION: ''
 
 jobs:
   setup_tools:
@@ -33,7 +30,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: ['18.x', '20.x']
+        node-version: ['20.x']
         # Node 22 isn't yet available on Azure
 
     steps:
@@ -42,18 +39,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Print a debug message
-        run: echo "set up node"
-#      - name: find_agent_version
-#        run: |
-#          npm view newrelic version >> ${{ env.AGENT_VERSION }}
-#          cd "cloud-tooling/azure-site-extension"
-#          echo Agent version: ${{ env.AGENT_VERSION }}
-#          echo "NewRelic.Azure.WebSites.Extension.NodeAgent.${{env.AGENT_VERSION}}.${{ matrix.node-version }}" >> ${{ env.PACKAGE_FILENAME }}
-#      - name: install_agent
-#        run: |
-#          cd .\Content
-#          npm i newrelic@${{ env.AGENT_VERSION }}
+      - name: Find agent version
+        run: |
+          $env:npm_agent_version = npm view newrelic version
+#          echo "npm agent version? $env:npm_agent_version"
+          echo "AGENT_VERSION=$env:npm_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          cd "cloud-tooling/azure-site-extension"
+      - name: Set package filename
+        run: echo "PACKAGE_FILENAME=NewRelic.Azure.WebSites.Extension.NodeAgent.${{env.AGENT_VERSION}}.${{ matrix.node-version }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Verify environment vars # because we can't access GH env vars until the next step
+        run: |
+          echo "Agent version: ${{ env.AGENT_VERSION }}"
+          echo "Package filename: ${{ env.PACKAGE_FILENAME }}"
+#          echo ("PACKAGE_FILENAME=NewRelic.Azure.WebSites.Extension.NodeAgent.${{env.AGENT_VERSION}}.${{ matrix.node-version }}") >> $env:GITHUB_ENV
+      - name: install_agent
+        run: |
+          cd .\Content
+          pwd
+          npm i newrelic@${{ env.AGENT_VERSION }}
 #      - name: configure_package
 #        run: |
 #          cd ..
@@ -76,4 +79,17 @@ jobs:
 #
 
 
+#      - name: GitHub Example
+#        id: step_one
+#        run: |
+#          $env:npm_agent_version = npm view newrelic version
+#          echo "agent version? $env:npm_agent_version"
+#          echo "AGENT_VERSION=$env:AGENT_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Append
+#      - name: Use the value
+#        id: step_two
+#        run: |
+#          echo "action state: ${{ env.action_state }}" # This will output 'yellow'
+#          echo "action state no-append: ${{ env.action_state_no_append }}"
+#          echo "AGENT_VERSION from shell: $env:AGENT_VERSION"
+#          echo "AGENT_VERSION from GitHub Actions: ${{ env.AGENT_VERSION }}"
 
