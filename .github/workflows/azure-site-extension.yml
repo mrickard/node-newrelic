@@ -57,12 +57,12 @@ jobs:
       - name: Configure package files
         run: |
           cd ..
-          (Get-Content ./cloud-tooling/azure-site-extension/${{ env.SPEC_FILE_TEMPLATE }}).Replace('{VERSION}', "${{ env.AGENT_VERSION }}").Replace('{NODE_VERSION}', "${{ matrix.node-version }}") | Set-Content ./cloud-tooling/azure-site-extension/${{ env.PACKAGE_FILENAME }}.nuspec
+          (Get-Content cloud-tooling/azure-site-extension/${{ env.SPEC_FILE_TEMPLATE }}).Replace('{VERSION}', "${{ env.AGENT_VERSION }}").Replace('{NODE_VERSION}', "${{ matrix.node-version }}") | Set-Content ./cloud-tooling/azure-site-extension/${{ env.PACKAGE_FILENAME }}.nuspec
 #          get-content ${{ env.SPEC_FILE_TEMPLATE }} | %{$_ -replace "{VERSION}","${{ env.AGENT_VERSION }}"} >> ${{NUSPEC_GENERATED}}
 
       - name: Create bundle
         run: |
-          cd ./cloud-tooling/azure-site-extension/
+          cd cloud-tooling/azure-site-extension/
           pwd
           mkdir dist
           nuget pack "${{ env.PACKAGE_FILENAME }}.nuspec" -OutputDirectory=dist
@@ -72,7 +72,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: azure-site-extension-test-${{ env.PACKAGE_FILENAME }}
-          path: ./cloud-tooling/azure-site-extension/dist/
+          path: cloud-tooling/azure-site-extension/dist/
 
 #      - name: publish_package
 #        run: |
