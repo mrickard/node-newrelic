@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup dotnet '6.0.x'
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '6.0.x'
     - name: Display dotnet version
@@ -57,7 +57,7 @@ jobs:
       - name: Configure package files
         run: |
           cd ..
-          (Get-Content ${{ env.SPEC_FILE_TEMPLATE }}).Replace('{VERSION}', ${{ env.AGENT_VERSION }}).Replace('{NODE_VERSION}', ${{ matrix.node-version }}) | Set-Content ${{ env.PACKAGE_FILENAME }}.nuspec
+          (Get-Content ${{ env.SPEC_FILE_TEMPLATE }}).Replace('{VERSION}', "${{ env.AGENT_VERSION }}").Replace('{NODE_VERSION}', "${{ matrix.node-version }}") | Set-Content ${{ env.PACKAGE_FILENAME }}.nuspec
 #          get-content ${{ env.SPEC_FILE_TEMPLATE }} | %{$_ -replace "{VERSION}","${{ env.AGENT_VERSION }}"} >> ${{NUSPEC_GENERATED}}
 
       - name: Create bundle
