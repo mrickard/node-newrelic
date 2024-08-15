@@ -56,14 +56,14 @@ jobs:
 
       - name: Configure package files
         run: |
-          cd ..
-          (Get-Content cloud-tooling/azure-site-extension/${{ env.SPEC_FILE_TEMPLATE }}).Replace('{VERSION}', "${{ env.AGENT_VERSION }}").Replace('{NODE_VERSION}', "${{ matrix.node-version }}") | Set-Content ./cloud-tooling/azure-site-extension/${{ env.PACKAGE_FILENAME }}.nuspec
+          pwd
+          (Get-Content cloud-tooling/azure-site-extension/${{ env.SPEC_FILE_TEMPLATE }}).Replace('{VERSION}', "${{ env.AGENT_VERSION }}").Replace('{NODE_VERSION}', "${{ matrix.node-version }}") | Set-Content cloud-tooling/azure-site-extension/${{ env.PACKAGE_FILENAME }}.nuspec
 #          get-content ${{ env.SPEC_FILE_TEMPLATE }} | %{$_ -replace "{VERSION}","${{ env.AGENT_VERSION }}"} >> ${{NUSPEC_GENERATED}}
 
       - name: Create bundle
         run: |
-          cd cloud-tooling/azure-site-extension/
           pwd
+          cd cloud-tooling/azure-site-extension/
           mkdir dist
           nuget pack "${{ env.PACKAGE_FILENAME }}.nuspec" -OutputDirectory=dist
           cd ..
