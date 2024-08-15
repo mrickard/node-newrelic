@@ -66,14 +66,12 @@ jobs:
           cd cloud-tooling/azure-site-extension/
           nuget pack "${{ env.PACKAGE_FILENAME }}.nuspec"
           ls
-          mkdir dist
-          mv "${{ env.PACKAGE_FILENAME }}.nuspec" dist
 
       - name: Archive package for verification
         uses: actions/upload-artifact@v4
         with:
           name: azure-site-extension-test-${{ env.PACKAGE_FILENAME }}
-          path: cloud-tooling/azure-site-extension/dist/
+          path: cloud-tooling/azure-site-extension/${{ env.PACKAGE_FILENAME }}.nupkg
 
 #      - name: publish_package
 #        run: |
