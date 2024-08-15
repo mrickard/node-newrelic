@@ -65,13 +65,14 @@ jobs:
           pwd
           cd cloud-tooling/azure-site-extension/
           nuget pack "${{ env.PACKAGE_FILENAME }}.nuspec"
-          ls
+          echo "Going to list directory contents"
+          Get-ChildItem -Path .\*.* -Recurse -Force
 
-      - name: Archive package for verification
-        uses: actions/upload-artifact@v4
-        with:
-          name: azure-site-extension-test-${{ env.PACKAGE_FILENAME }}
-          path: cloud-tooling/azure-site-extension/${{ env.PACKAGE_FILENAME }}.nupkg
+#      - name: Archive package for verification
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: azure-site-extension-test-${{ env.PACKAGE_FILENAME }}
+#          path: cloud-tooling/azure-site-extension/.*
 
 #      - name: publish_package
 #        run: |
