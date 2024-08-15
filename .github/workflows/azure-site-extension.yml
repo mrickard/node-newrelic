@@ -30,8 +30,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: ['20.x']
-        # Node 22 isn't yet available on Azure
+        node-version: ['20.x'] # Node 22 isn't yet available on Azure
 
     steps:
       - uses: actions/checkout@v4
@@ -39,12 +38,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+
       - name: Find agent version
         run: |
-          $env:npm_agent_version = npm view newrelic version
-#          echo "npm agent version? $env:npm_agent_version"
+          $env:npm_agent_version = npm view newrelic version 
           echo "AGENT_VERSION=$env:npm_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
-          cd "cloud-tooling/azure-site-extension"
       - name: Set package filename
         run: echo "PACKAGE_FILENAME=NewRelic.Azure.WebSites.Extension.NodeAgent.${{env.AGENT_VERSION}}.${{ matrix.node-version }}" | Out-File -FilePath $env:GITHUB_ENV -Append
       - name: Verify environment vars # because we can't access GH env vars until the next step
@@ -54,9 +52,10 @@ jobs:
 #          echo ("PACKAGE_FILENAME=NewRelic.Azure.WebSites.Extension.NodeAgent.${{env.AGENT_VERSION}}.${{ matrix.node-version }}") >> $env:GITHUB_ENV
       - name: install_agent
         run: |
-          cd .\Content
+          cd "cloud-tooling/azure-site-extension/Content"
           pwd
           npm i newrelic@${{ env.AGENT_VERSION }}
+
 #      - name: configure_package
 #        run: |
 #          cd ..
