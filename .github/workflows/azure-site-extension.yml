@@ -49,26 +49,29 @@ jobs:
         run: |
           echo "Agent version: ${{ env.AGENT_VERSION }}"
           echo "Package filename: ${{ env.PACKAGE_FILENAME }}"
-#          echo ("PACKAGE_FILENAME=NewRelic.Azure.WebSites.Extension.NodeAgent.${{env.AGENT_VERSION}}.${{ matrix.node-version }}") >> $env:GITHUB_ENV
-      - name: install_agent
+      - name: Install agent
         run: |
           cd "cloud-tooling/azure-site-extension/Content"
-          pwd
           npm i newrelic@${{ env.AGENT_VERSION }}
 
-#      - name: configure_package
-#        run: |
-#          cd ..
-#          (Get-Content ${{ env.SPEC_FILE_TEMPLATE }}).Replace('{VERSION}', ${{ env.AGENT_VERSION }}).Replace('{NODE_VERSION}', ${{ matrix.node-version }}) | Set-Content ${{ env.PACKAGE_FILENAME }}.nuspec
+      - name: Configure package files
+        run: |
+          cd ..
+          (Get-Content ${{ env.SPEC_FILE_TEMPLATE }}).Replace('{VERSION}', ${{ env.AGENT_VERSION }}).Replace('{NODE_VERSION}', ${{ matrix.node-version }}) | Set-Content ${{ env.PACKAGE_FILENAME }}.nuspec
 #          get-content ${{ env.SPEC_FILE_TEMPLATE }} | %{$_ -replace "{VERSION}","${{ env.AGENT_VERSION }}"} >> ${{NUSPEC_GENERATED}}
 
-#      - name: pack
-#        run: nuget pack "${{ env.PACKAGE_FILENAME }}.nuspec" -OutputDirectory=./azure-site-extension/dist
-#      - name: Archive package for verification
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: azure-site-extension-test-${{ env.PACKAGE_FILENAME }}
-#          path: ./azure-site-extension/dist/
+      - name: Create bundle
+        run: |
+          pwd
+          mkdir dist
+          nuget pack "${{ env.PACKAGE_FILENAME }}.nuspec" -OutputDirectory=.dist
+          cd ..
+
+      - name: Archive package for verification
+        uses: actions/upload-artifact@v4
+        with:
+          name: azure-site-extension-test-${{ env.PACKAGE_FILENAME }}
+          path: ./azure-site-extension/dist/
 
 #      - name: publish_package
 #        run: |
