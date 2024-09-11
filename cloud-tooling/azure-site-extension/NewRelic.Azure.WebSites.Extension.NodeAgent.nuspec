@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>This extension adds the ZLZZ Agent to your Azure WebSite.</description>
-    <readme>Content\README.md</readme>
+    <readme>content\README.md</readme>
     <tags>AzureSiteExtension</tags>
     <packageTypes>
       <packageType name="AzureSiteExtension" />
