@@ -1,0 +1,35 @@
+name: Simulate Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      result:
+        description: This is a test workflow to simulate other conditions. Choose the expected result
+        required: true
+        type: choice
+        default: success
+        options:
+          - success
+          - failure
+
+jobs:
+  run-simulation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Do a success
+        if: ( inputs.result == 'success' )
+        run: |
+          echo "did a success"
+          exit 0;
+      - name: Do a failure
+        if: ( inputs.result == 'failure' )
+        run: |
+          echo "did a failure"
+          exit 1;
+        
+
+
