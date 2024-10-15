@@ -36,10 +36,28 @@ jobs:
           node-version: ${{ matrix.node-version }}
           architecture: ${{ matrix.arch }}
 
-      - name: Find agent version
+      - name: Get local agent version
+        run: |
+          $env:local_agent_version = node -e "console.log(require(`${process.cwd()}/package.json`).version)"
+          echo "AGENT_VERSION=$env:local_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Find agent version at npm
         run: |
           $env:npm_agent_version = npm view newrelic version 
-          echo "AGENT_VERSION=$env:npm_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "NPM_AGENT_VERSION=$env:npm_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Check NPM availability
+        if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
+        run: |
+          $env:limit = 0
+          while(npm view newrelic version != ${{ env.AGENT_VERSION }} && $env:limit < 5 ) {
+            Start-Sleep -s 15
+            echo "current limit: $env:limit"
+            $env:limit++
+          }
+          $env:npm_agent_version = npm view newrelic version 
+          echo "npm version after sleeping $env:npm_agent_version"
+          echo "NPM_AGENT_VERSION=$env:npm_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Set package filename
         run: |
