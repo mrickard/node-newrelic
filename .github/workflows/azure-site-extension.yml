@@ -51,11 +51,11 @@ jobs:
       - name: Check NPM availability
         if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
         run: |
-          $env:limit = 0
-          while(npm view newrelic version != ${{ env.AGENT_VERSION }} && $env:limit -lt 5 ) {
+          $limit = 0
+          while(npm view newrelic version != ${{ env.AGENT_VERSION }} && $limit -lt 5 ) {
             Start-Sleep -s 15
-            echo "current limit: $env:limit"
-            $env:limit++
+            echo "current limit: $limit"
+            $limit++
           }
           $env:npm_agent_version = npm view newrelic version 
           echo "npm version after sleeping $env:npm_agent_version"
