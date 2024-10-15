@@ -38,9 +38,9 @@ jobs:
 
       - name: Get local agent version
         run: |
-          pwd
-          ls *.json
-          $env:local_agent_version = node -p "require('./package.json').version"
+          # $env:local_agent_version = node -p "require('./package.json').version"
+          $env:local_agent_version = '12.5.2'
+          echo "AGENT_VERSION $env:local_agent_version"
           echo "AGENT_VERSION=$env:local_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Find agent version at npm
@@ -61,6 +61,12 @@ jobs:
           echo "npm version after sleeping $env:npm_agent_version"
           echo "NPM_AGENT_VERSION=$env:npm_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
 
+      - name: Is the new agent published?
+        if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
+        run: |
+          echo "Published agent version (${{}}) is behind local agent version (${{}}); exiting."
+          exit 1;
+          
       - name: Set package filename
         run: |
           echo "PACKAGE_FILENAME=ZLZZ.Azure.WebSites.Extension.NodeAgent.${{env.AGENT_VERSION}}" | Out-File -FilePath $env:GITHUB_ENV -Append
