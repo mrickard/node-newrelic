@@ -52,7 +52,7 @@ jobs:
         if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
         run: |
           $env:limit = 0
-          while(npm view newrelic version != ${{ env.AGENT_VERSION }} && $env:limit < 5 ) {
+          while(npm view newrelic version != ${{ env.AGENT_VERSION }} && $env:limit -lt 5 ) {
             Start-Sleep -s 15
             echo "current limit: $env:limit"
             $env:limit++
