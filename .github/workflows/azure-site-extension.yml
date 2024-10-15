@@ -64,7 +64,7 @@ jobs:
       - name: Is the new agent published?
         if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
         run: |
-          echo "Published agent version (${{}}) is behind local agent version (${{}}); exiting."
+          echo "Published agent version (${{env.NPM_AGENT_VERSION }}) is behind local agent version (${{env.AGENT_VERSION}}); exiting."
           exit 1;
           
       - name: Set package filename
