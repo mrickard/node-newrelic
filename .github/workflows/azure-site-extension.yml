@@ -52,7 +52,7 @@ jobs:
         if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
         run: |
           $count = 0
-          while($count < 5) {
+          while($count -lt 5) {
             Start-Sleep -s 15
             $npmversion = npm view newrelic version != ${{ env.AGENT_VERSION }}
             echo "current iteration: $count"
