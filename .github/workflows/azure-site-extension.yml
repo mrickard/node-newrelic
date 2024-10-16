@@ -44,9 +44,8 @@ jobs:
 
       - name: Find agent version at npm
         run: |
-          $env:npm_agent_version = '12.5.0'
-#          $env:npm_agent_version = npm view newrelic version 
-          echo "NPM_AGENT_VERSION=$env:npm_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $env:npm_agent_version = npm view newrelic version 
+          echo "NPM_AGENT_VERSION=12.5.0" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Check NPM availability
         if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
