@@ -58,7 +58,9 @@ jobs:
             echo "npm version: $npmversion"
             echo "local version: ${{ env.AGENT_VERSION }}"
             $test = $npmversion -eq ${{ env.AGENT_VERSION }}
+            $stringtest = $npmversion.equals(${{ env.AGENT_VERSION }})
             echo "test result: $test"
+            echo "stringtest result: $stringtest"
             if ($npmversion -eq ${{ env.AGENT_VERSION }}) {
               echo "Versions are equal! We should break"
               break;
