@@ -38,14 +38,14 @@ jobs:
 
       - name: Get local agent version
         run: |
-          # $env:local_agent_version = node -p "require('./package.json').version"
-          $env:local_agent_version = '12.5.2'
+          $env:local_agent_version = node -p "require('./package.json').version"
           echo "AGENT_VERSION $env:local_agent_version"
           echo "AGENT_VERSION=$env:local_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Find agent version at npm
         run: |
-          $env:npm_agent_version = npm view newrelic version 
+#          $env:npm_agent_version = npm view newrelic version 
+          $env:npm_agent_version = '12.5.0'
           echo "NPM_AGENT_VERSION=$env:npm_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Check NPM availability
