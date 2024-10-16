@@ -56,7 +56,11 @@ jobs:
             $npmversion = npm view newrelic version
             echo "current iteration: $count"
             echo "npm version: $npmversion"
+            echo "local version: ${{ env.AGENT_VERSION }}"
+            $test = $npmversion -eq ${{ env.AGENT_VERSION }}
+            echo "test result: $test"
             if ($npmversion -eq ${{ env.AGENT_VERSION }}) {
+              echo "Versions are equal! We should break"
               break;
             }
             $count++
