@@ -18,10 +18,11 @@ jobs:
       available_on_npm: ${{ steps.get-npm-agent.outputs.npmversion }}
       latest_is_available: ${{ steps.npm-agent-available.outputs.available }}
     steps:
-      - name: Use Node.js lts
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}.x
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          node-version: 'latest'
 
       - name: Get local agent version
         id: get-local-agent
