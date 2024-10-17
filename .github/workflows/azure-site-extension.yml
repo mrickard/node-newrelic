@@ -11,6 +11,61 @@ env:
   SPEC_FILE_TEMPLATE: 'NewRelic.Azure.WebSites.Extension.NodeAgent.nuspec'
 
 jobs:
+  check_agent_availability: 
+    runs-on: ubuntu-latest
+    outputs:
+      local_agent_version: ${{ steps.get-local-agent.outputs.localversion }}
+      available_on_npm: ${{ steps.get-npm-agent.outputs.npmversion }}
+      latest_is_available: ${{ steps.npm-agent-available.outputs.available }}
+    steps:
+      - name: Use Node.js lts
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts'
+
+      - name: Get local agent version
+        id: get-local-agent
+        run: |
+          $local_agent_version = node -p "require('./package.json').version"
+          echo "localversion $local_agent_version"
+          echo "localversion=$local_agent_version" >> $GITHUB_OUTPUT
+
+      - name: Find agent version at npm
+        id: get-npm-agent
+        run: |
+          $npm_agent_version = npm view newrelic version 
+          echo "npmversion=12.5.0" >> $GITHUB_OUTPUT
+
+      - name: Check NPM availability
+        id: npm-agent-available
+        if: ${{ steps.get-local-agent.outputs.localversion != steps.get-npm-agent.outputs.npmversion }}
+        run: |
+          $count = 1
+          $seconds = 15
+          $npmversion = ''
+          $newVersionAvailble = false
+          while($count < 6) { 
+            $seconds = $seconds * count
+            sleep $seconds
+            $npmversion = npm view newrelic version
+            echo "current iteration: $count. Waiting $seconds seconds."
+            echo "npm version: $npmversion"
+            echo "local version: ${{ steps.get-local-agent.outputs.localversion }}"
+            $newVersionAvailble = $npmversion == ${{ steps.get-local-agent.outputs.localversion }}
+            echo "test result: $newVersionAvailble"
+            if ($newVersionAvailble) {
+              echo "Versions are equal! We should break"
+              break;
+            }
+            $count++
+          }
+          echo "npm version after sleeping $npmversion"
+          echo "available=$newVersionAvailble" >> $GITHUB_OUTPUT
+          if (!$newVersionAvailble) {
+            echo "Published agent version ($npmversion) is behind local agent version (${{ steps.get-local-agent.outputs.localversion }}); exiting."
+            exit 1;
+          }
+    
   create_extension_bundle:
     runs-on: windows-latest
     if:
@@ -22,6 +77,8 @@ jobs:
         node-version: ['lts/*']
         arch: [ x64 ]
 
+    needs: check_agent_availability
+    
     steps:
       - uses: actions/checkout@v4
 
@@ -29,59 +86,20 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '6.0.x'
-
+          
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           architecture: ${{ matrix.arch }}
-
-      - name: Get local agent version
-        run: |
-          $env:local_agent_version = node -p "require('./package.json').version"
-          echo "AGENT_VERSION $env:local_agent_version"
-          echo "AGENT_VERSION=$env:local_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: Find agent version at npm
-        run: |
-          $env:npm_agent_version = npm view newrelic version 
-          echo "NPM_AGENT_VERSION=12.5.0" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: Check NPM availability
-        if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
-        run: |
-          $count = 0
-          while($count -lt 5) {
-            Start-Sleep -s 15
-            $npmversion = npm view newrelic version
-            echo "current iteration: $count"
-            echo "npm version: $npmversion"
-            echo "local version: ${{ env.AGENT_VERSION }}"
-            $test = [Version]$npmversion -match [Version]${{ env.AGENT_VERSION }}
-            echo "test result: $test"
-            if ([Version]$npmversion -match [Version]${{ env.AGENT_VERSION }}) {
-              echo "Versions are equal! We should break"
-              break;
-            }
-            $count++
-          }
-          $env:npm_agent_version = npm view newrelic version 
-          echo "npm version after sleeping $env:npm_agent_version"
-          echo "NPM_AGENT_VERSION=$env:npm_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: Is the new agent published?
-        if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
-        run: |
-          echo "Published agent version (${{env.NPM_AGENT_VERSION }}) is behind local agent version (${{env.AGENT_VERSION}}); exiting."
-          exit 1;
           
       - name: Set package filename
         run: |
-          echo "PACKAGE_FILENAME=ZLZZ.Azure.WebSites.Extension.NodeAgent.${{env.AGENT_VERSION}}" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "PACKAGE_FILENAME=ZLZZ.Azure.WebSites.Extension.NodeAgent.${{ needs.get-local-agent.outputs.localversion }}" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Verify environment vars # because we can't access GH env vars until the next step
         run: |
-          echo "Agent version: ${{ env.AGENT_VERSION }}"
+          echo "Agent version: ${{ needs.get-local-agent.outputs.localversion }}"
           echo "Package filename: ${{ env.PACKAGE_FILENAME }}"
 
 #      - name: Install agent
