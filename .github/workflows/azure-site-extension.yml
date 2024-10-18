@@ -45,33 +45,38 @@ jobs:
       - name: Check NPM availability
         id: npm-agent-available
         if: ${{ steps.get-local-agent.outputs.localversion != steps.get-npm-agent.outputs.npmversion }}
+        
         run: |
-          count=1
-          seconds=15
-          npmversion=''
-          newVersionAvailble=false
-          while(count < 6) { 
-            seconds = seconds * count
-            sleep seconds
-            npmversion = npm view newrelic version
-            echo "current iteration: ${{count}}. Waiting ${{seconds}} seconds."
-            echo "npm version: ${{npmversion}}"
+          while [[ $count -lt 6 ]] do
+            seconds = (( $seconds * $count ))
+            sleep $seconds
+            echo "npm version before check: $npmversion"
+            echo "npmversion = $(npm view newrelic version)"
+            echo "npm version after check: $npmversion"
             echo "local version: ${{ steps.get-local-agent.outputs.localversion }}"
-            newVersionAvailble = (npmversion == ${{ steps.get-local-agent.outputs.localversion }})
-            echo "test result: ${{newVersionAvailble}}"
-            if (newVersionAvailble) {
+            if [[ $npmversion == ${{ steps.get-local-agent.outputs.localversion }} ]]
+            then
               echo "Versions are equal! We should break"
-              break;
-            }
-            count++
-          }
+              echo "available=${{newVersionAvailble}}" >> $GITHUB_OUTPUT
+              break
+            fi
+              count=$(( $count + 1 ))
+          done
           echo "npm version after sleeping ${{npmversion}}"
-          echo "available=${{newVersionAvailble}}" >> $GITHUB_OUTPUT
-          if (!newVersionAvailble) {
+          
+        env: 
+          count: 1
+          seconds: 15
+          npmversion: ''
+          
+      - name: Verify published version
+        run: |
+          if [[ $npmversion == ${{ steps.get-local-agent.outputs.localversion }} ]]
+          then
             echo "Published agent version (${{npmversion}}) is behind local agent version (${{ steps.get-local-agent.outputs.localversion }}); exiting."
-            exit 1;
-          }
-    
+            exit 1
+          fi
+          
   create_extension_bundle:
     runs-on: windows-latest
     if:
