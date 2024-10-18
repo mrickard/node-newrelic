@@ -87,23 +87,24 @@ jobs:
 
       - name: Set package filename
         run: |
-          echo "PACKAGE_FILENAME=ZLZZ.Azure.WebSites.Extension.NodeAgent.${{steps.get-local-agent.outputs.localversion}}" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "AGENT_VERSION=${{ needs.check-agent-availability.get-local-agent.outputs.localversion }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "PACKAGE_FILENAME=ZLZZ.Azure.WebSites.Extension.NodeAgent.${{ needs.check-agent-availability.get-local-agent.outputs.localversion }}" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Verify environment vars # because we can't access GH env vars until the next step
         run: |
-          echo "Agent version: ${{ steps.get-local-agent.outputs.localversion }}"
+          echo "Agent version: ${{ env.AGENT_VERSION }}"
           echo "Package filename: ${{ env.PACKAGE_FILENAME }}"
 
       - name: Install agent
         working-directory: cloud-tooling/azure-site-extension/Content
         run: |
-          npm i --prefix . newrelic@${{ steps.get-local-agent.outputs.localversion }}
+          npm i --prefix . newrelic@${{ env.AGENT_VERSION }}
           echo "Agent installed"
 
       - name: Configure package files
         working-directory: cloud-tooling/azure-site-extension
         run: |
-          (Get-Content ${{ env.SPEC_FILE_TEMPLATE }}).Replace('{VERSION}', "${{ steps.get-local-agent.outputs.localversion }}") | Set-Content ${{ env.PACKAGE_FILENAME }}.nuspec
+          (Get-Content ${{ env.SPEC_FILE_TEMPLATE }}).Replace('{VERSION}', "${{ env.AGENT_VERSION }}") | Set-Content ${{ env.PACKAGE_FILENAME }}.nuspec
 
       - name: Create bundle
         working-directory: cloud-tooling/azure-site-extension
