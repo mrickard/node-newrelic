@@ -45,10 +45,13 @@ jobs:
       - name: Check NPM availability
         id: npm-agent-available
         if: ${{ steps.get-local-agent.outputs.localversion != steps.get-npm-agent.outputs.npmversion }}
-        
+        env:
+          count: 1
+          seconds: 15
+          npmversion: ''        
         run: |
-          while [[ $count -lt 6 ]] do
-            seconds = (( $seconds * $count ))
+          while [[ ${{ env.count }} -lt 6 ]] do
+            echo "seconds = $( $seconds * $count )" >> GITHUB_ENV
             sleep $seconds
             echo "npm version before check: $npmversion"
             echo "npmversion = $(npm view newrelic version)"
@@ -58,20 +61,17 @@ jobs:
             then
               echo "Versions are equal! We should break"
               echo "available=${{newVersionAvailble}}" >> $GITHUB_OUTPUT
+              echo "npmversion=$npmversion" >> $GITHUB_OUTPUT
               break
             fi
               count=$(( $count + 1 ))
           done
-          echo "npm version after sleeping ${{npmversion}}"
+          echo "npm version after sleeping $npmversion"
           
-        env: 
-          count: 1
-          seconds: 15
-          npmversion: ''
           
       - name: Verify published version
         run: |
-          if [[ $npmversion == ${{ steps.get-local-agent.outputs.localversion }} ]]
+          if [[ ${{ steps.get-local-agent.outputs.localversion }} != ${{ steps.get-local-agent.outputs.localversion }} ]]
           then
             echo "Published agent version (${{npmversion}}) is behind local agent version (${{ steps.get-local-agent.outputs.localversion }}); exiting."
             exit 1
