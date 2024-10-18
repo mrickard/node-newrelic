@@ -48,7 +48,7 @@ jobs:
           $env:npm_agent_version = npm view newrelic version 
           echo "Done with delayed check. Published version: $env:npm_agent_version Local version: ${{env.AGENT_VERSION}}"
           echo "NPM_AGENT_VERSION=$env:npm_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
-      - name: Verifying that new agent version ${{ env.AGENT_VERSION }} has been published
+      - name: Verifying that latest agent version has been published
         if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
         run: |
           echo "Published agent version (${{env.NPM_AGENT_VERSION }}) is behind local agent version (${{env.AGENT_VERSION}}); exiting."
