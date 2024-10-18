@@ -36,7 +36,7 @@ jobs:
       - name: Check NPM availability
         if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
         run: |
-          echo "local version output: ${{ check-agent-availability.get-local-agent.outputs.localversion }}"
+          echo "local version output: ${{ steps.get-local-agent.outputs.localversion }}"
           $count = 1
           $seconds = 15
           while($count -lt 6) {
