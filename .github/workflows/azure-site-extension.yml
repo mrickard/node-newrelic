@@ -11,7 +11,7 @@ env:
   SPEC_FILE_TEMPLATE: 'NewRelic.Azure.WebSites.Extension.NodeAgent.nuspec'
 
 jobs:
-  check_agent_availability:
+  check-agent-availability:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,8 +53,6 @@ jobs:
         run: |
           echo "Published agent version (${{env.NPM_AGENT_VERSION }}) is behind local agent version (${{env.AGENT_VERSION}}); exiting."
           exit 1;
-    
-  
   
   create_extension_bundle:
     runs-on: windows-latest
