@@ -11,6 +11,51 @@ env:
   SPEC_FILE_TEMPLATE: 'NewRelic.Azure.WebSites.Extension.NodeAgent.nuspec'
 
 jobs:
+  check_agent_availability:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js lts/*
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - name: Get local agent version
+        run: |
+          $env:local_agent_version = node -p "require('./package.json').version"
+          echo "AGENT_VERSION=$env:local_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Find agent version at npm
+        run: |
+          $env:npm_agent_version = npm view newrelic version 
+          echo "NPM_AGENT_VERSION=12.5.0" | Out-File -FilePath $env:GITHUB_ENV -Append
+#          echo "NPM_AGENT_VERSION=$env:npm_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
+  
+      - name: Check NPM availability
+        if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
+        run: |
+          $count = 1
+          $seconds = 15
+          while($count -lt 6) {
+            $seconds = ($seconds * $count)
+            Start-Sleep -s $seconds
+            $npmversion = npm view newrelic version
+            echo "Checking npm ($count), having slept $seconds seconds: $npmversion"
+            $test = [Version]$npmversion -match [Version]${{ env.AGENT_VERSION }}
+            if ([Version]$npmversion -match [Version]${{ env.AGENT_VERSION }}) {
+              break;
+            }
+            $count++
+          }
+          $env:npm_agent_version = npm view newrelic version 
+          echo "Done with delayed check. Published version: $env:npm_agent_version Local version: ${{env.AGENT_VERSION}}"
+          echo "NPM_AGENT_VERSION=$env:npm_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Verifying that new agent version ${{ env.AGENT_VERSION }} has been published
+        if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
+        run: |
+          echo "Published agent version (${{env.NPM_AGENT_VERSION }}) is behind local agent version (${{env.AGENT_VERSION}}); exiting."
+          exit 1;
+    
+  
+  
   create_extension_bundle:
     runs-on: windows-latest
     if:
@@ -21,10 +66,12 @@ jobs:
       matrix:
         node-version: ['lts/*']
         arch: [ x64 ]
-
+    
+    needs: check-agent-availability
+    
     steps:
       - uses: actions/checkout@v4
-
+        
       - name: Setup dotnet '6.0.x'
         uses: actions/setup-dotnet@v4
         with:
@@ -36,43 +83,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
           architecture: ${{ matrix.arch }}
 
-      - name: Get local agent version 
-        run: |
-          $env:local_agent_version = node -p "require('./package.json').version"
-          echo "AGENT_VERSION=$env:local_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: Find agent version at npm 
-        run: |
-          $env:npm_agent_version = npm view newrelic version 
-          echo "NPM_AGENT_VERSION=$env:npm_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
-          
-      - name: Check NPM availability
-        if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
-        run: |
-          $count = 0
-          while($count -lt 10) {
-            Start-Sleep -s 120
-            $npmversion = npm view newrelic version
-            echo "Checking npm ($count): $npmversion"
-            $test = [Version]$npmversion -match [Version]${{ env.AGENT_VERSION }}
-            if ([Version]$npmversion -match [Version]${{ env.AGENT_VERSION }}) {
-              break;
-            }
-            $count++
-          }
-          $env:npm_agent_version = npm view newrelic version 
-          echo "Done with delayed check. Published version: $env:npm_agent_version Local version: ${{env.AGENT_VERSION}}"
-          echo "NPM_AGENT_VERSION=$env:npm_agent_version" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: Has the new agent been published?
-        if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
-        run: |
-          echo "Published agent version (${{env.NPM_AGENT_VERSION }}) is behind local agent version (${{env.AGENT_VERSION}}); exiting."
-          exit 1;
-
       - name: Set package filename
         run: |
-          echo "PACKAGE_FILENAME=NewRelic.Azure.WebSites.Extension.NodeAgent.${{env.AGENT_VERSION}}" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "PACKAGE_FILENAME=ZLZZ.Azure.WebSites.Extension.NodeAgent.${{env.AGENT_VERSION}}" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Verify environment vars # because we can't access GH env vars until the next step
         run: |
@@ -95,13 +108,13 @@ jobs:
         run: nuget pack "${{ env.PACKAGE_FILENAME }}.nuspec"
 
       # This step is for us to check what's going to be published
-      - name: Archive package for verification
-        uses: actions/upload-artifact@v4
-        with:
-          name: azure-site-extension-test-${{ env.PACKAGE_FILENAME }}
-          path: cloud-tooling/azure-site-extension/${{ env.PACKAGE_FILENAME }}.nupkg
+#      - name: Archive package for verification
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: azure-site-extension-test-${{ env.PACKAGE_FILENAME }}
+#          path: cloud-tooling/azure-site-extension/${{ env.PACKAGE_FILENAME }}.nupkg
 
-      - name: Publish site extension
-        working-directory: cloud-tooling/azure-site-extension
-        run: |
-          dotnet nuget push "${{ env.PACKAGE_FILENAME }}.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source ${{ secrets.NUGET_SOURCE }}
+#      - name: Publish site extension
+#        working-directory: cloud-tooling/azure-site-extension
+#        run: |
+#          dotnet nuget push "${{ env.PACKAGE_FILENAME }}.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source ${{ secrets.NUGET_SOURCE }}
