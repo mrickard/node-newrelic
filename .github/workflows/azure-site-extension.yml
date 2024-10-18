@@ -36,6 +36,7 @@ jobs:
       - name: Check NPM availability
         if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
         run: |
+          echo "local version output: ${{ check-agent-availability.get-local-agent.outputs.localversion }}"
           $count = 1
           $seconds = 15
           while($count -lt 6) {
@@ -87,6 +88,7 @@ jobs:
 
       - name: Set package filename
         run: |
+          echo "output from availability check ${{ needs.check-agent-availability.get-local-agent.outputs.localversion }}"
           echo "AGENT_VERSION=${{ needs.check-agent-availability.get-local-agent.outputs.localversion }}" | Out-File -FilePath $env:GITHUB_ENV -Append
           echo "PACKAGE_FILENAME=ZLZZ.Azure.WebSites.Extension.NodeAgent.${{ needs.check-agent-availability.get-local-agent.outputs.localversion }}" | Out-File -FilePath $env:GITHUB_ENV -Append
 
