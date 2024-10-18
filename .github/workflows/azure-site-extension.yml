@@ -27,9 +27,7 @@ jobs:
       - name: Get local agent version
         id: get-local-agent
         run: |
-          echo "localversion=$(node -p `require('./package.json').version`)" >> $GITHUB_OUTPUT
-#          echo "localversion $local_agent_version"
-#          echo "localversion=$local_agent_version" >> $GITHUB_OUTPUT
+          echo "localversion=$(node -p 'require(`./package.json`).version')" >> $GITHUB_OUTPUT
 
       - name: Test local agent output
         run: |
@@ -37,37 +35,40 @@ jobs:
 
       - name: Find agent version at npm
         id: get-npm-agent
+        run: echo "npmversion=12.5.0" >> $GITHUB_OUTPUT
+#          echo "npm_agent_version=$(npm view newrelic version)" >> $GITHUB_OUTPUT 
+
+      - name: Test npm agent output
         run: |
-          echo "npm_agent_version=$(npm view newrelic version)" >> $GITHUB_OUTPUT 
-          echo "npmversion=12.5.0" >> $GITHUB_OUTPUT
+          echo "Test npm agent output npmversion ${{ steps.get-local-agent.outputs.npmversion }}"
 
       - name: Check NPM availability
         id: npm-agent-available
         if: ${{ steps.get-local-agent.outputs.localversion != steps.get-npm-agent.outputs.npmversion }}
         run: |
-          $count=1
-          $seconds=15
-          $npmversion=''
-          $newVersionAvailble=false
-          while($count < 6) { 
-            $seconds=$seconds * count
-            sleep $seconds
-            $npmversion = npm view newrelic version
-            echo "current iteration: $count. Waiting $seconds seconds."
-            echo "npm version: $npmversion"
+          count=1
+          seconds=15
+          npmversion=''
+          newVersionAvailble=false
+          while(count < 6) { 
+            seconds = seconds * count
+            sleep seconds
+            npmversion = npm view newrelic version
+            echo "current iteration: ${{count}}. Waiting ${{seconds}} seconds."
+            echo "npm version: ${{npmversion}}"
             echo "local version: ${{ steps.get-local-agent.outputs.localversion }}"
-            $newVersionAvailble = $npmversion == ${{ steps.get-local-agent.outputs.localversion }}
-            echo "test result: $newVersionAvailble"
-            if ($newVersionAvailble) {
+            newVersionAvailble = (npmversion == ${{ steps.get-local-agent.outputs.localversion }})
+            echo "test result: ${{newVersionAvailble}}"
+            if (newVersionAvailble) {
               echo "Versions are equal! We should break"
               break;
             }
-            $count++
+            count++
           }
-          echo "npm version after sleeping $npmversion"
-          echo "available=$newVersionAvailble" >> $GITHUB_OUTPUT
-          if (!$newVersionAvailble) {
-            echo "Published agent version ($npmversion) is behind local agent version (${{ steps.get-local-agent.outputs.localversion }}); exiting."
+          echo "npm version after sleeping ${{npmversion}}"
+          echo "available=${{newVersionAvailble}}" >> $GITHUB_OUTPUT
+          if (!newVersionAvailble) {
+            echo "Published agent version (${{npmversion}}) is behind local agent version (${{ steps.get-local-agent.outputs.localversion }}); exiting."
             exit 1;
           }
     
