@@ -51,16 +51,16 @@ jobs:
         if: ${{ env.NPM_AGENT_VERSION != env.AGENT_VERSION }}
         run: |
           $count = 0
-          while($count -lt 5) {
-            Start-Sleep -s 15
+          $seconds = 15
+          while($count -le 10) {
+            $seconds = $seconds * $count 
+            echo "Waiting $seconds seconds"
+            Start-Sleep -s $seconds
             $npmversion = npm view newrelic version
-            echo "current iteration: $count"
-            echo "npm version: $npmversion"
-            echo "local version: ${{ env.AGENT_VERSION }}"
+            echo "Checking npm ($count): $npmversion"
             $test = [Version]$npmversion -match [Version]${{ env.AGENT_VERSION }}
-            echo "test result: $test"
             if ([Version]$npmversion -match [Version]${{ env.AGENT_VERSION }}) {
-              echo "Versions are equal! We should break"
+              echo "Agent version ${{ env.AGENT_VERSION }} is now available"
               break;
             }
             $count++
