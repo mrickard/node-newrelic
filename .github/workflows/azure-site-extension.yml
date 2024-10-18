@@ -28,8 +28,8 @@ jobs:
         id: get-local-agent
         run: |
           echo "localversion=$(node -p `require('./package.json').version`)" >> $GITHUB_OUTPUT
-          echo "localversion $local_agent_version"
-          echo "localversion=$local_agent_version" >> $GITHUB_OUTPUT
+#          echo "localversion $local_agent_version"
+#          echo "localversion=$local_agent_version" >> $GITHUB_OUTPUT
 
       - name: Test local agent output
         run: |
