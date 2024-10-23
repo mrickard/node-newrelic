@@ -66,6 +66,8 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
     }
     ctx.nr.stubCallback = () => {}
 
+    console.log('test')
+
     process.env.AWS_EXECUTION_ENV = 'Test_nodejsNegative2.3'
 
     ctx.nr.error = new SyntaxError(errorMessage)
