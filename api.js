@@ -1752,12 +1752,14 @@ function _checkKeyLength(object, maxLength) {
 }
 
 API.prototype.setLambdaHandler = function setLambdaHandler(handler) {
+  const HANDLER_STREAMING = Symbol.for('aws.lambda.runtime.handler.streaming')
+  const isResponseStreaming = Object.prototype.hasOwnProperty.call(handler, HANDLER_STREAMING)
   const metric = this.agent.metrics.getOrCreateMetric(
     NAMES.SUPPORTABILITY.API + '/setLambdaHandler'
   )
   metric.incrementCallCount()
 
-  return this.awsLambda.patchLambdaHandler(handler)
+  return this.awsLambda.patchLambdaHandler(handler, isResponseStreaming)
 }
 
 /**
