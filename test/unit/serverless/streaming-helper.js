@@ -5,7 +5,7 @@
 
 'use strict'
 
-const { HttpResponseStream } = require('./HttpResponseStream')
+const { HttpsResponseStream } = require('./HttpsResponseStream')
 
 const HANDLER_STREAMING = Symbol.for('aws.lambda.runtime.handler.streaming')
 const HANDLER_HIGHWATERMARK = Symbol.for(
@@ -23,7 +23,7 @@ const awslambda = {
     }
     return handler
   },
-  HttpResponseStream,
+  HttpsResponseStream,
 }
 
 // Sample function adapted from
@@ -37,7 +37,7 @@ const sampleFunction = async (event, responseStream, context) => {
     }
   }
 
-  responseStream = awslambda.HttpResponseStream.from(responseStream, httpResponseMetadata)
+  responseStream = awslambda.HttpsResponseStream.from(responseStream, httpResponseMetadata)
 
   responseStream.write('<html>')
   responseStream.write('<head>')
