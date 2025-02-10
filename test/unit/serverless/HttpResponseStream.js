@@ -6,7 +6,7 @@
 'use strict'
 
 // a basic version of AWS's response stream for Lambda, for testing
-class HttpResponseStream {
+class HttpsResponseStream {
   static from(originalStream, prelude) {
     originalStream.setContentType('application/vnd.awslambda.http-integration-response')
 
@@ -19,4 +19,4 @@ class HttpResponseStream {
   }
 }
 
-module.exports = { HttpResponseStream }
+module.exports = { HttpsResponseStream }
