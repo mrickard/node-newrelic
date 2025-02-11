@@ -8,7 +8,8 @@
 // a basic version of AWS's response stream for Lambda, for testing
 class HttpsResponseStream {
   static from(originalStream, prelude) {
-    originalStream.setContentType('application/vnd.awslambda.http-integration-response')
+    // This isn't a method on the original stream, so it's commented out here
+    // originalStream.setContentType('application/vnd.awslambda.http-integration-response')
 
     const streamMetaData = JSON.stringify(prelude)
     originalStream._onBeforeFirstWrite = (write) => {
