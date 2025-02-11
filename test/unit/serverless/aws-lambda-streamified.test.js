@@ -8,9 +8,8 @@
 const test = require('node:test')
 const assert = require('node:assert')
 const os = require('node:os')
-const { Writable } = require('node:stream')
 // const pipeline = require('util').promisify(require('stream').pipeline)
-// const { Readable } = require('stream')
+// const { Writable, Readable } = require('stream')
 
 const { tspl } = require('@matteo.collina/tspl')
 const helper = require('../../lib/agent_helper')
@@ -19,7 +18,7 @@ const tempOverrideUncaught = require('../../lib/temp-override-uncaught')
 const AwsLambda = require('../../../lib/serverless/aws-lambda')
 const lambdaSampleEvents = require('./lambda-sample-events')
 
-const { lambdaBuiltIns } = require('./streaming-helper')
+const { lambdaBuiltIns, WriteStream, constants } = require('./streaming-helper')
 
 const { DESTINATIONS: ATTR_DEST } = require('../../../lib/config/attribute-filter')
 const symbols = require('../../../lib/symbols')
@@ -84,7 +83,7 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
       memoryLimitInMB: '128',
       awsRequestId: 'testid'
     }
-    ctx.nr.stubResponseStream = new Writable()
+    ctx.nr.stubResponseStream = new WriteStream()
 
     process.env.AWS_EXECUTION_ENV = 'Test_nodejsNegative2.3'
 

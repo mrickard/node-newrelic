@@ -6,6 +6,7 @@
 'use strict'
 
 const { HttpsResponseStream } = require('./HttpsResponseStream')
+const { Writable } = require('node:stream')
 
 const HANDLER_STREAMING = Symbol.for('aws.lambda.runtime.handler.streaming')
 const HANDLER_HIGHWATERMARK = Symbol.for(
@@ -26,4 +27,25 @@ const awslambda = {
   HttpsResponseStream,
 }
 
-module.exports = { lambdaBuiltIns: awslambda, constants: { HANDLER_STREAMING } }
+class WriteStream extends Writable {
+  constructor(options) {
+    super(options)
+    this._value = []
+    this._contentType = 'string'
+  }
+
+  _write(chunk, encoding, callback) {
+    this._value.push(chunk)
+    callback()
+  }
+
+  _read() {
+    return this._value.concat()
+  }
+
+  setContentType(ctype) {
+    this._contentType = ctype
+  }
+}
+
+module.exports = { lambdaBuiltIns: awslambda, WriteStream, constants: { HANDLER_STREAMING } }

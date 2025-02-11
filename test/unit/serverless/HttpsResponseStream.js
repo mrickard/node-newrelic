@@ -9,7 +9,7 @@
 class HttpsResponseStream {
   static from(originalStream, prelude) {
     // This isn't a method on the original stream, so it's commented out here
-    // originalStream.setContentType('application/vnd.awslambda.http-integration-response')
+    originalStream.setContentType('application/vnd.awslambda.http-integration-response')
 
     const streamMetaData = JSON.stringify(prelude)
     originalStream._onBeforeFirstWrite = (write) => {
