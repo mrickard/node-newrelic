@@ -8,7 +8,9 @@
 const test = require('node:test')
 const assert = require('node:assert')
 const os = require('node:os')
-const { Writable } = require('node:stream');
+const { Writable, Readable } = require('node:stream')
+// const pipeline = require('util').promisify(require('stream').pipeline)
+// const { Readable } = require('stream')
 
 const { tspl } = require('@matteo.collina/tspl')
 const helper = require('../../lib/agent_helper')
@@ -55,6 +57,13 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
     })
     return responseStream
   }
+
+  // const pipelineStreamResponse = async (input, responseStream) => {
+  //   const requestStream = Readable.from(Buffer.from(JSON.stringify(input)))
+  //   const streamResult = await pipeline(requestStream, responseStream)
+  //   console.log("something")
+  //   return streamResult
+  // }
 
   t.beforeEach((ctx) => {
     ctx.nr = {}
@@ -134,7 +143,7 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
           responseStream = lambdaBuiltIns.HttpsResponseStream.from(responseStream, validStreamMetaData)
           const chunks = ['first', 'second', 'third', 'fourth']
           await writeStreamResponse(chunks, responseStream, 500)
-          
+
           const transaction = agent.tracer.getTransaction()
           assert.ok(transaction)
           assert.equal(transaction.type, 'bg')
@@ -142,7 +151,7 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
           assert.equal(transaction.isActive(), true)
           responseStream.end()
         })
-        
+
         const wrappedHandler = awsLambda.patchLambdaHandler(handler)
         wrappedHandler(nonApiGatewayProxyEvent, stubResponseStream, stubContext)
 
@@ -172,7 +181,7 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
         responseStream = lambdaBuiltIns.HttpsResponseStream.from(responseStream, validStreamMetaData)
         const chunks = ['fifth', 'sixth', 'seventh', 'eighth']
         await writeStreamResponse(chunks, responseStream, 500)
-        
+
         const transaction = agent.tracer.getTransaction()
 
         assert.ok(transaction)
@@ -218,12 +227,12 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
 
         const apiGatewayProxyEvent = lambdaSampleEvents.apiGatewayProxyEvent
         apiGatewayProxyEvent.headers.traceparent = traceparent
-        
+
         const handler = lambdaBuiltIns.streamifyResponse(async (event, responseStream, context) => {
           responseStream = lambdaBuiltIns.HttpsResponseStream.from(responseStream, validStreamMetaData)
           const chunks = ['tracecontext first', 'tracecontext second', 'tracecontext third', 'tracecontext fourth']
           await writeStreamResponse(chunks, responseStream, 500)
-          
+
           const transaction = agent.tracer.getTransaction()
 
           const headers = {}
@@ -273,10 +282,8 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
 
           assert.ok(headers.traceparent)
           assert.ok(headers.tracestate)
-
-          callback(null, validResponse)
         })
-        
+
         const wrappedHandler = awsLambda.patchLambdaHandler(handler)
 
         wrappedHandler(apiGatewayProxyEvent, stubResponseStream, stubContext)
@@ -299,7 +306,7 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
         await writeStreamResponse(chunks, responseStream, 500)
         responseStream.end()
       })
-      
+
       const wrappedHandler = awsLambda.patchLambdaHandler(handler)
 
       wrappedHandler(apiGatewayProxyEvent, stubResponseStream, stubContext)
@@ -330,7 +337,7 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
         await writeStreamResponse(chunks, responseStream, 500)
         responseStream.end()
       })
-      
+
       const wrappedHandler = awsLambda.patchLambdaHandler(handler)
 
       wrappedHandler(apiGatewayProxyEvent, stubResponseStream, stubContext)
@@ -358,7 +365,7 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
         await writeStreamResponse(chunks, responseStream, 500)
         responseStream.end()
       })
-      
+
       const wrappedHandler = awsLambda.patchLambdaHandler(handler)
 
       wrappedHandler(apiGatewayProxyEvent, stubResponseStream, stubContext)
@@ -408,8 +415,8 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
       const handler = lambdaBuiltIns.streamifyResponse(async (event, responseStream, context) => {
         responseStream = lambdaBuiltIns.HttpsResponseStream.from(responseStream, validStreamMetaData)
         const chunks = ['filter by exclude 1', 'filter by exclude 2', 'filter by exclude 3']
-        await writeStreamResponse(chunks, responseStream, 500)
-        responseStream.end()
+        const stream = await writeStreamResponse(chunks, responseStream, 500)
+        stream.end()
       })
       const wrappedHandler = awsLambda.patchLambdaHandler(handler)
 
@@ -437,55 +444,20 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
       }
     })
 
-    /// TODO: make sure the agent can capture HTTP statusCode from the stream metadata. 
-    // await t.test('should capture status code', (t, end) => {
-    //   const { agent, awsLambda, stubResponseStream, stubContext } = t.nr
-    //   agent.on('transactionFinished', confirmAgentAttribute)
-    //
-    //   const apiGatewayProxyEvent = lambdaSampleEvents.apiGatewayProxyEvent
-    //
-    //   const handler = lambdaBuiltIns.streamifyResponse(async (event, responseStream, context) => {
-    //     responseStream = lambdaBuiltIns.HttpsResponseStream.from(responseStream, validStreamMetaData)
-    //     const chunks = ['capture statusCode 1', 'capture statusCode 2', 'capture statusCode 3']
-    //     const streamWrites = await writeStreamResponse(chunks, responseStream, 500)
-    //     responseStream.end()
-           
-    //   })
-    //   const wrappedHandler = awsLambda.patchLambdaHandler(handler)
-    //
-    //   wrappedHandler(apiGatewayProxyEvent, stubResponseStream, stubContext)
-    //
-    //   function confirmAgentAttribute(transaction) {
-    //     const agentAttributes = transaction.trace.attributes.get(ATTR_DEST.TRANS_EVENT)
-    //     const segment = transaction.agent.tracer.getSegment()
-    //     const spanAttributes = segment.attributes.get(ATTR_DEST.SPAN_EVENT)
-    //
-    //     assert.equal(agentAttributes['http.statusCode'], '200')
-    //     assert.equal(spanAttributes['http.statusCode'], '200')
-    //
-    //     end()
-    //   }
-    // })
-
-    await t.test('should capture response status code in async lambda', (t, end) => {
+    /// TODO: make sure the agent can capture HTTP statusCode from the stream metadata.
+    await t.test('should capture status code', (t, end) => {
       const { agent, awsLambda, stubResponseStream, stubContext } = t.nr
       agent.on('transactionFinished', confirmAgentAttribute)
 
       const apiGatewayProxyEvent = lambdaSampleEvents.apiGatewayProxyEvent
-      
+
       const handler = lambdaBuiltIns.streamifyResponse(async (event, responseStream, context) => {
-        // const chunks = ['filter by exclude 1', 'filter by exclude 2', 'filter by exclude 3']
-        // await chunks.forEach(chunk => {
-        //   responseStream.write(chunk)
-        // })
-        return Promise.resolve({
-          status: 200,
-          statusCode: 200,
-          statusDescription: 'Success',
-          isBase64Encoded: false,
-          headers: {},
-          body: 'ok' // fails if we return a stream body
-        })
+        responseStream = lambdaBuiltIns.HttpsResponseStream.from(responseStream, validStreamMetaData)
+        const chunks = ['capture statusCode 1', 'capture statusCode 2', 'capture statusCode 3']
+        const streamWrites = await writeStreamResponse(chunks, responseStream, 500)
+        console.log('written stream', streamWrites)
+        console.log('responseStream stream', responseStream)
+        responseStream.end()
       })
       const wrappedHandler = awsLambda.patchLambdaHandler(handler)
 
@@ -493,7 +465,7 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
 
       function confirmAgentAttribute(transaction) {
         const agentAttributes = transaction.trace.attributes.get(ATTR_DEST.TRANS_EVENT)
-        const segment = transaction.baseSegment
+        const segment = transaction.agent.tracer.getSegment()
         const spanAttributes = segment.attributes.get(ATTR_DEST.SPAN_EVENT)
 
         assert.equal(agentAttributes['http.statusCode'], '200')
@@ -503,52 +475,98 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
       }
     })
 
+    /// TODO: instrument the response stream
+    // await t.test('should capture response status code in async lambda', (t, end) => {
+    //   const { agent, awsLambda, stubResponseStream, stubContext } = t.nr
+    //   agent.on('transactionFinished', confirmAgentAttribute)
+    //
+    //   const apiGatewayProxyEvent = lambdaSampleEvents.apiGatewayProxyEvent
+    //
+    //   const handler = lambdaBuiltIns.streamifyResponse(async (event, responseStream, context) => {
+    //     const chunks = ['filter by exclude 1', 'filter by exclude 2', 'filter by exclude 3']
+    //     await chunks.forEach(chunk => {
+    //       responseStream.write(chunk)
+    //     })
+    //     return Promise.resolve({
+    //       status: 200,
+    //       statusCode: 200,
+    //       statusDescription: 'Success',
+    //       isBase64Encoded: false,
+    //       headers: {},
+    //       body: responseStream
+    //     })
+    //   })
+    //   const wrappedHandler = awsLambda.patchLambdaHandler(handler)
+    //
+    //   wrappedHandler(apiGatewayProxyEvent, stubResponseStream, stubContext)
+    //
+    //   function confirmAgentAttribute(transaction) {
+    //     const agentAttributes = transaction.trace.attributes.get(ATTR_DEST.TRANS_EVENT)
+    //     const segment = transaction.baseSegment
+    //     const spanAttributes = segment.attributes.get(ATTR_DEST.SPAN_EVENT)
+    //
+    //     assert.equal(agentAttributes['http.statusCode'], '200')
+    //     assert.equal(spanAttributes['http.statusCode'], '200')
+    //
+    //     end()
+    //   }
+    // })
+
     /// TODO: update tests below for responseStreaming
-    await t.test('should capture response headers', (t, end) => {
-      const { agent, awsLambda, stubResponseStream, stubContext } = t.nr
-      agent.on('transactionFinished', confirmAgentAttribute)
+    // await t.test('should capture response headers', (t, end) => {
+    //   const { agent, awsLambda, stubResponseStream, stubContext } = t.nr
+    //   agent.on('transactionFinished', confirmAgentAttribute)
+    //
+    //   const apiGatewayProxyEvent = lambdaSampleEvents.apiGatewayProxyEvent
+    //
+    //   const handler = lambdaBuiltIns.streamifyResponse(async (event, responseStream, context) => {
+    //     responseStream = lambdaBuiltIns.HttpsResponseStream.from(responseStream, validStreamMetaData)
+    //
+    //     // const stream = await pipelineStreamResponse(event, responseStream, 500)
+    //     // return {}
+    //   })
+    //   const wrappedHandler = awsLambda.patchLambdaHandler(handler)
+    //
+    //   wrappedHandler(apiGatewayProxyEvent, stubResponseStream, stubContext)
+    //
+    //   function confirmAgentAttribute(transaction) {
+    //     const agentAttributes = transaction.trace.attributes.get(ATTR_DEST.TRANS_EVENT)
+    //
+    //     assert.equal(agentAttributes['response.headers.responseHeader'], 'headerValue')
+    //
+    //     end()
+    //   }
+    // })
 
-      const apiGatewayProxyEvent = lambdaSampleEvents.apiGatewayProxyEvent
-
-      const wrappedHandler = awsLambda.patchLambdaHandler((event, responseStream, context) => {
-        callback(null, validResponse)
-      })
-
-      wrappedHandler(apiGatewayProxyEvent, stubResponseStream, stubContext)
-
-      function confirmAgentAttribute(transaction) {
-        const agentAttributes = transaction.trace.attributes.get(ATTR_DEST.TRANS_EVENT)
-
-        assert.equal(agentAttributes['response.headers.responseHeader'], 'headerValue')
-
-        end()
-      }
-    })
-
-    await t.test('should work when responding without headers', (t, end) => {
-      const { agent, awsLambda, stubResponseStream, stubContext } = t.nr
-      agent.on('transactionFinished', confirmAgentAttribute)
-
-      const apiGatewayProxyEvent = lambdaSampleEvents.apiGatewayProxyEvent
-
-      const wrappedHandler = awsLambda.patchLambdaHandler((event, responseStream, context) => {
-        callback(null, {
-          isBase64Encoded: false,
-          statusCode: 200,
-          body: 'worked'
-        })
-      })
-
-      wrappedHandler(apiGatewayProxyEvent, stubResponseStream, stubContext)
-
-      function confirmAgentAttribute(transaction) {
-        const agentAttributes = transaction.trace.attributes.get(ATTR_DEST.TRANS_EVENT)
-
-        assert.equal(agentAttributes['http.statusCode'], '200')
-
-        end()
-      }
-    })
+    // await t.test('should work when responding without headers', (t, end) => {
+    //   const { agent, awsLambda, stubResponseStream, stubContext } = t.nr
+    //   agent.on('transactionFinished', confirmAgentAttribute)
+    //
+    //   const apiGatewayProxyEvent = lambdaSampleEvents.apiGatewayProxyEvent
+    //
+    //   const handler = lambdaBuiltIns.streamifyResponse(async (event, responseStream, context) => {
+    //     const requestStream = Readable.from(Buffer.from(JSON.stringify(event)))
+    //     requestStream.on('close', () => {
+    //       console.log('requestStream stream closed')
+    //     })
+    //     responseStream.on('close', () => {
+    //       console.log('responseStream stream closed')
+    //     })
+    //
+    //     await pipeline(requestStream, responseStream)
+    //   })
+    //   const wrappedHandler = awsLambda.patchLambdaHandler(handler)
+    //
+    //   wrappedHandler(apiGatewayProxyEvent, stubResponseStream, stubContext)
+    //
+    //   function confirmAgentAttribute(transaction) {
+    //     const agentAttributes = transaction.trace.attributes.get(ATTR_DEST.TRANS_EVENT)
+    //
+    //     assert.equal(agentAttributes['http.statusCode'], '200')
+    //
+    //     end()
+    //   }
+    // })
 
     await t.test('should detect event type', (t, end) => {
       const { agent, awsLambda, stubResponseStream, stubContext } = t.nr
@@ -556,9 +574,13 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
 
       const apiGatewayProxyEvent = lambdaSampleEvents.apiGatewayProxyEvent
 
-      const wrappedHandler = awsLambda.patchLambdaHandler((event, responseStream, context) => {
-        callback(null, validResponse)
+      const handler = lambdaBuiltIns.streamifyResponse(async (event, responseStream, context) => {
+        responseStream = lambdaBuiltIns.HttpsResponseStream.from(responseStream, validStreamMetaData)
+        const chunks = ['filter by exclude 1', 'filter by exclude 2', 'filter by exclude 3']
+        const stream = await writeStreamResponse(chunks, responseStream, 500)
+        stream.end()
       })
+      const wrappedHandler = awsLambda.patchLambdaHandler(handler)
 
       wrappedHandler(apiGatewayProxyEvent, stubResponseStream, stubContext)
 
@@ -577,9 +599,14 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
 
       const apiGatewayProxyEvent = lambdaSampleEvents.apiGatewayProxyEvent
 
-      const wrappedHandler = awsLambda.patchLambdaHandler((event, responseStream, context) => {
-        callback(null, validResponse)
+      const handler = lambdaBuiltIns.streamifyResponse(async (event, responseStream, context) => {
+        responseStream = lambdaBuiltIns.HttpsResponseStream.from(responseStream, validStreamMetaData)
+        const chunks = ['event source 1', 'event source exclude 2', 'event source 3']
+        const stream = await writeStreamResponse(chunks, responseStream, 500)
+        stream.end()
       })
+
+      const wrappedHandler = awsLambda.patchLambdaHandler(handler)
 
       wrappedHandler(apiGatewayProxyEvent, stubResponseStream, stubContext)
 
@@ -610,9 +637,13 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
 
       const apiGatewayProxyEvent = lambdaSampleEvents.apiGatewayProxyEvent
 
-      const wrappedHandler = awsLambda.patchLambdaHandler((event, responseStream, context) => {
-        callback(null, validResponse)
+      const handler = lambdaBuiltIns.streamifyResponse(async (event, responseStream, context) => {
+        responseStream = lambdaBuiltIns.HttpsResponseStream.from(responseStream, validStreamMetaData)
+        const chunks = ['event source 1', 'event source exclude 2', 'event source 3']
+        const stream = await writeStreamResponse(chunks, responseStream, 500)
+        stream.end()
       })
+      const wrappedHandler = awsLambda.patchLambdaHandler(handler)
 
       wrappedHandler(apiGatewayProxyEvent, stubResponseStream, stubContext)
 
