@@ -49,6 +49,14 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
       'X-Custom-Header': 'NewRelic-Test-Header'
     }
   }
+  // Used by API Gateway response tests
+  const validResponse = {
+    isBase64Encoded: false,
+    statusCode: 200,
+    headers: { responseHeader: 'headerValue' },
+    body: 'a valid response string'
+  }
+
   const writeStreamResponse = async (chunks, responseStream, delay) => {
     chunks.forEach(chunk => {
       responseStream.write(chunk)
@@ -447,9 +455,8 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
         responseStream = lambdaBuiltIns.HttpsResponseStream.from(responseStream, validStreamMetaData)
         const chunks = ['capture statusCode 1', 'capture statusCode 2', 'capture statusCode 3']
         await writeStreamResponse(chunks, responseStream, 500)
-        console.log('responseStream stream', responseStream)
-        console.log('typeof responsestream', typeof responseStream)
         responseStream.end()
+        return validResponse
       })
       const wrappedHandler = awsLambda.patchLambdaHandler(handler)
 
@@ -504,18 +511,10 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
       const apiGatewayProxyEvent = lambdaSampleEvents.apiGatewayProxyEvent
 
       const handler = lambdaBuiltIns.streamifyResponse(async (event, responseStream, context) => {
-        // const chunks = ['filter by exclude 1', 'filter by exclude 2', 'filter by exclude 3']
-        // await chunks.forEach(chunk => {
-        //   responseStream.write(chunk)
-        // })
-        // return Promise.resolve({
-        //   status: 200,
-        //   statusCode: 200,
-        //   statusDescription: 'Success',
-        //   isBase64Encoded: false,
-        //   headers: {},
-        //   body: 'ok' // fails if we return a stream body
-        // })
+        const chunks = ['filter by exclude 1', 'filter by exclude 2', 'filter by exclude 3']
+        await writeStreamResponse(chunks, responseStream, 500)
+        responseStream.end()
+        return Promise.resolve(validResponse)
       })
       const wrappedHandler = awsLambda.patchLambdaHandler(handler)
 

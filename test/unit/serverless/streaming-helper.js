@@ -46,6 +46,17 @@ class WriteStream extends Writable {
   setContentType(ctype) {
     this._contentType = ctype
   }
+
+  getValue(type) {
+    const valueArray = []
+    if (type === 'string') {
+      this._value.forEach(buf => {
+        valueArray.push(buf.toString('utf8'))
+      })
+      return valueArray.join('\n')
+    }
+    return this._value
+  }
 }
 
 module.exports = { lambdaBuiltIns: awslambda, WriteStream, constants: { HANDLER_STREAMING } }
