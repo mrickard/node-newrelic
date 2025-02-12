@@ -39,10 +39,6 @@ class WriteStream extends Writable {
     callback()
   }
 
-  _read() {
-    return this._value.concat()
-  }
-
   setContentType(ctype) {
     this._contentType = ctype
   }
