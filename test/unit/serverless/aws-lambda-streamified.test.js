@@ -18,7 +18,7 @@ const tempOverrideUncaught = require('../../lib/temp-override-uncaught')
 const AwsLambda = require('../../../lib/serverless/aws-lambda')
 const lambdaSampleEvents = require('./lambda-sample-events')
 
-const { lambdaBuiltIns, WriteStream, constants } = require('./streaming-helper')
+const { lambdaBuiltIns, WriteStream } = require('./streaming-helper')
 
 const { DESTINATIONS: ATTR_DEST } = require('../../../lib/config/attribute-filter')
 const symbols = require('../../../lib/symbols')
@@ -1723,7 +1723,7 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
         assert.equal(transaction.getFullName(), expectedBgTransactionName)
         assert.ok(transaction.isActive())
 
-        cb()
+        // cb()
 
         assert.equal(transaction.isActive(), false)
         return resolve('hello')
