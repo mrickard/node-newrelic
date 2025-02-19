@@ -17,6 +17,7 @@ const tempRemoveListeners = require('../../lib/temp-remove-listeners')
 const tempOverrideUncaught = require('../../lib/temp-override-uncaught')
 const AwsLambda = require('../../../lib/serverless/aws-lambda')
 const lambdaSampleEvents = require('./lambda-sample-events')
+const { createAwsLambdaApiServer, createAwsResponseStream } = require('./streaming-server')
 
 const { lambdaBuiltIns, WriteStream } = require('./streaming-helper')
 
@@ -65,7 +66,7 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
     return responseStream
   }
 
-  t.beforeEach((ctx) => {
+  t.beforeEach(async (ctx) => {
     ctx.nr = {}
     ctx.nr.agent = helper.loadMockedAgent({
       allow_all_headers: true,
@@ -74,6 +75,13 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
       },
       serverless_mode: { enabled: true }
     })
+
+    const { server, hostname, port } = await createAwsLambdaApiServer()
+
+    const {
+      responseStream,
+      responseDone
+    } = createAwsResponseStream({ hostname, port })
 
     process.env.NEWRELIC_PIPE_PATH = os.devNull
     const awsLambda = new AwsLambda(ctx.nr.agent)
@@ -91,7 +99,9 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
       memoryLimitInMB: '128',
       awsRequestId: 'testid'
     }
-    ctx.nr.stubResponseStream = new WriteStream()
+    ctx.nr.streamingServer = server
+    ctx.nr.stubResponseStream = responseStream
+    ctx.nr.stubResponseStreamDone = responseDone
 
     process.env.AWS_EXECUTION_ENV = 'Test_nodejsNegative2.3'
 
@@ -102,6 +112,7 @@ test('AwsLambda.patchLambdaHandler', async (t) => {
 
   t.afterEach((ctx) => {
     delete process.env.AWS_EXECUTION_ENV
+    ctx.nr.streamingServer.close()
     helper.unloadAgent(ctx.nr.agent)
 
     if (process.emit && process.emit[symbols.unwrap]) {
