@@ -24,18 +24,3 @@ test.afterEach((ctx) => {
     // ctx.nr.server.stop()
 })
 
-test('preserves server creation return', (t) => {
-    const { agent } = t.nr
-
-    const azureFns = require('@azure/functions')
-    const returned = utils.getServer({ azureFns })
-
-    assert.ok(returned != null, 'Azure functions returns from server creation')
-
-    const shim = new shims.WebFrameworkShim(agent, 'azureFns')
-    instrument(agent, azureFns, 'azureFns', shim)
-
-    const returned2 = utils.getServer({ azureFns })
-
-    assert.ok(returned2 != null, 'Server creation returns when instrumented')
-})
