@@ -27,7 +27,7 @@ Configuration details vary slightly across the three broad categories of instrum
 
 ### Configuring Core Instrumentation
 
-A core instrumentation is configured via the [CORE_INSTRUMENTATION object in the the shimmer module](https://github.com/newrelic/node-newrelic/blob/main/lib/shimmer.js#L17).
+A core instrumentation is configured via the [CORE_INSTRUMENTATION object in the the shimmer module](https://github.com/newrelic/node-newrelic/blob/main/lib/shimmer.js#L13).
 
 ```js
 var CORE_INSTRUMENTATION = {
